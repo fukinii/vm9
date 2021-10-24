@@ -1,7 +1,7 @@
 import numpy as np
-from euler_model import Euler
-from utils import convert_conserved_to_primitive, calc_speed_of_sound, calc_divided_difference
-from solver import Solver
+from src.euler_model import Euler
+from src.utils import convert_conserved_to_primitive, calc_speed_of_sound, calc_divided_difference
+from src.solver import Solver
 
 
 class SimpleSolver(Solver):

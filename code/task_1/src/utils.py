@@ -5,7 +5,8 @@ def convert_primitive_to_conserved(w, gamma=1.4):
     u = np.zeros_like(w)
     u[0] = w[0]
     u[1] = w[0] * w[1]
-    u[2] = w[2] / (gamma - 1) + 0.5 * w[0] * w[1] ** 2
+    u[2] = w[0] * w[2]
+    u[3] = w[3] / (gamma - 1) + 0.5 * w[0] * (w[1] ** 2 + w[2] ** 2)
 
     return u
 
@@ -21,7 +22,7 @@ def convert_conserved_to_primitive_zero(u, gamma=1.4):
     # assert v[0] > 0, \
     #     'Отрицательная плотность'
     v[0] = v[0] if v[0] >= 0 else 1e-9
-    v[2] = v[2] if v[2] >= 0 else 1e-9
+    v[3] = v[3] if v[3] >= 0 else 1e-9
 
     u_new = convert_primitive_to_conserved(v)
     # if not np.array_equal(u, u_new):
@@ -34,14 +35,17 @@ def convert_conserved_to_primitive(u, gamma=1.4):
     v = np.zeros_like(u)
     v[0] = u[0]
     v[1] = u[1] / u[0]
-    v[2] = (u[2] - 0.5 * v[0] * v[1] ** 2) * (gamma - 1)
+    v[2] = u[2] / u[0]
+    v[3] = (u[2] - 0.5 * v[0] * (v[1] ** 2 + v[2] ** 2)) * (gamma - 1)
 
+    # if v[2] <= 0:
+    #     print(u, v)
     # assert v[2] > 0, \
     #     'Отрицательное давление'
     # assert v[0] > 0, \
     #     'Отрицательная плотность'
-    # v[0] = v[0] if v[0] >= 0 else 1e-9
-    # v[2] = v[2] if v[2] >= 0 else 1e-9
+    v[0] = v[0] if v[0] >= 0 else 0
+    v[3] = v[3] if v[3] >= 0 else 0
     return v
 
 
@@ -50,7 +54,8 @@ def calc_flux(u):
     v = convert_conserved_to_primitive(u)
     f[0] = u[1]  # ρu
     f[1] = u[1] ** 2 / u[0] + v[2]  # ρ * u^2 + p
-    f[2] = (u[2] + v[2]) * v[1]  # (E + p) * u
+    f[2] = u[1] * u[2] / u[0]
+    f[3] = (u[2] + v[2]) * v[1]  # (E + p) * u
 
     return f
 

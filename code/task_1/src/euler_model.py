@@ -1,6 +1,6 @@
 import numpy as np
 from typing import List
-from utils import convert_primitive_to_conserved, convert_conserved_to_primitive, calc_flux, calc_speed_of_sound
+from src.utils import convert_primitive_to_conserved, convert_conserved_to_primitive, calc_flux, calc_speed_of_sound
 
 
 class Euler:
@@ -11,19 +11,50 @@ class Euler:
             riemann_solver_: str = 'hllc',
             wave_speed_estimator_: str = 'pressure_based',
             gamma_: np.double = 1.4,
+            dim=1
     ):
+
         self.gamma: np.double = gamma_
         self.riemann_solver: str = riemann_solver_
         self.wave_speed_estimator: str = wave_speed_estimator_
         self.boundary_condition: str = boundary_condition_
         self.initial_conditions: List = initial_conditions_
+        self.dim_sol = dim+2
 
-    def build_initial_conditions(self, x):
-        u0 = np.zeros((len(x), 3))
-        mask = x <= self.initial_conditions[2]
-        u0[mask, :] = convert_primitive_to_conserved(self.initial_conditions[0], self.gamma)
-        mask = x > self.initial_conditions[2]
-        u0[mask, :] = convert_primitive_to_conserved(self.initial_conditions[1], self.gamma)
+    def build_initial_conditions(self, x, y):
+        u0 = np.zeros((len(x), len(y), self.dim_sol))
+
+        """2 обл"""
+        a = x < self.initial_conditions[4]
+        b = y < self.initial_conditions[5]
+        c2 = np.einsum('i,j', a, b)
+
+        """4 обл"""
+        a = x >= self.initial_conditions[4]
+        b = y >= self.initial_conditions[5]
+        c4 = np.einsum('i,j', a, b)
+
+        """2 обл"""
+        a = x < self.initial_conditions[4]
+        b = y >= self.initial_conditions[5]
+        c1 = np.einsum('i,j', a, b)
+
+        """2 обл"""
+        a = x >= self.initial_conditions[4]
+        b = y < self.initial_conditions[5]
+        c3 = np.einsum('i,j', a, b)
+
+        # mask = x >= self.initial_conditions[4] and y >= self.initial_conditions[5]
+        u0[c1, :] = convert_primitive_to_conserved(self.initial_conditions[0], self.gamma)
+
+        # mask = x < self.initial_conditions[4] and y >= self.initial_conditions[5]
+        u0[c2, :] = convert_primitive_to_conserved(self.initial_conditions[1], self.gamma)
+
+        # mask = x < self.initial_conditions[4] and y < self.initial_conditions[5]
+        u0[c3, :] = convert_primitive_to_conserved(self.initial_conditions[2], self.gamma)
+
+        # mask = x >= self.initial_conditions[4] and y < self.initial_conditions[5]
+        u0[c4, :] = convert_primitive_to_conserved(self.initial_conditions[3], self.gamma)
 
         return u0
 
@@ -101,7 +132,7 @@ class Euler:
 
         return uk_star
 
-    def calc_flux_hllc(self, ul, ur):
+    def calc_flux_hllc(self, ul, ur):  # TODO: Переписать под двумерный случай
         vl = convert_conserved_to_primitive(ul)
         vr = convert_conserved_to_primitive(ur)
         sl, sr = self.estimate_speed_of_wave(ul, ur)
