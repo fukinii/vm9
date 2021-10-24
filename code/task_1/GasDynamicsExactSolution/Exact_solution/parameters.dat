@@ -1,0 +1,27 @@
+PARAMETERS_FOR_EXACT_RIEMANN_SOLVER
+
+---GRID---
+
+cells_number:       1000
+
+---TIME_MOMENT---
+
+stop_time:  0.1
+
+---INITIAL_CONDITIONS---
+
+LEFT_PARAMETERS:
+
+density:    1.0
+velocity:   0.0
+pressure:   1.0
+
+RIGHT_PARAMETERS:
+
+density:    0.125
+velocity:   0.0
+pressure:   0.1
+
+---EQUATION_OF_STATE---
+
+g:          1.4
