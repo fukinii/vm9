@@ -33,29 +33,40 @@ def convert_conserved_to_primitive_zero(u, gamma=1.4):
 
 def convert_conserved_to_primitive(u, gamma=1.4):
     v = np.zeros_like(u)
-    v[0] = u[0]
-    v[1] = u[1] / u[0]
-    v[2] = u[2] / u[0]
-    v[3] = (u[2] - 0.5 * v[0] * (v[1] ** 2 + v[2] ** 2)) * (gamma - 1)
+    v[0] = u[0]  # rho
+    v[1] = u[1] / u[0]  # u
+    v[2] = u[2] / u[0]  # v
+    v[3] = (u[3] - 0.5 * v[0] * (v[1] ** 2 + v[2] ** 2)) * (gamma - 1)  # p
 
     # if v[2] <= 0:
     #     print(u, v)
-    # assert v[2] > 0, \
-    #     'Отрицательное давление'
-    # assert v[0] > 0, \
-    #     'Отрицательная плотность'
-    v[0] = v[0] if v[0] >= 0 else 0
-    v[3] = v[3] if v[3] >= 0 else 0
+    assert v[3] > 0, \
+        'Отрицательное давление'
+    assert v[0] > 0, \
+        'Отрицательная плотность'
+    # v[0] = v[0] if v[0] >= 0 else 0
+    # v[3] = v[3] if v[3] >= 0 else 0
     return v
 
 
-def calc_flux(u):
+def calc_flux_x(u):
     f = np.zeros_like(u)
     v = convert_conserved_to_primitive(u)
     f[0] = u[1]  # ρu
-    f[1] = u[1] ** 2 / u[0] + v[2]  # ρ * u^2 + p
+    f[1] = u[1] ** 2 / u[0] + v[3]  # ρ * u^2 + p
     f[2] = u[1] * u[2] / u[0]
-    f[3] = (u[2] + v[2]) * v[1]  # (E + p) * u
+    f[3] = (u[3] + v[3]) * v[1]  # (E + p) * u
+
+    return f
+
+
+def calc_flux_y(u):
+    f = np.zeros_like(u)
+    v = convert_conserved_to_primitive(u)
+    f[0] = u[1]  # ρu
+    f[1] = u[1] * u[2] / u[0]
+    f[2] = u[2] ** 2 / u[0] + v[3]  # ρ * u^2 + p
+    f[3] = (u[3] + v[3]) * v[1]  # (E + p) * u
 
     return f
 
@@ -64,7 +75,7 @@ def calc_speed_of_sound(u, gamma=1.4):
     v = convert_conserved_to_primitive(u)
     # if np.sqrt(gamma * v[2] / v[0]) != np.sqrt(gamma * v[2] / v[0]):
     #     a = 1
-    return np.sqrt(gamma * v[2] / v[0])
+    return np.sqrt(gamma * v[3] / v[0])
     # return np.sqrt(np.abs(gamma * v[2] / v[0]))
 
 

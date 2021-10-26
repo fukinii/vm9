@@ -6,8 +6,8 @@ from src.solver import Solver
 
 class SimpleSolver(Solver):
 
-    def reconstruct(self, u, position, cell_index, order):
-        return self.make_reconstruction_1p(u[cell_index, :])
+    def reconstruct(self, u):
+        return self.make_reconstruction_1p(u)
 
     def build_boundary_conditions(self, u, ulr):
         return self.build_boundary_conditions_1p(u, ulr)

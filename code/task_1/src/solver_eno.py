@@ -1,7 +1,7 @@
 import numpy as np
 from src.euler_model import Euler
 from src.utils import calc_divided_difference
-from src.solver import Solver
+from src.solver_bad import Solver
 
 
 class SolverEno(Solver):
