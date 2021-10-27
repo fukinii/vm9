@@ -40,12 +40,14 @@ def convert_conserved_to_primitive(u, gamma=1.4):
 
     # if v[2] <= 0:
     #     print(u, v)
-    assert v[3] > 0, \
-        'Отрицательное давление'
-    assert v[0] > 0, \
-        'Отрицательная плотность'
-    # v[0] = v[0] if v[0] >= 0 else 0
-    # v[3] = v[3] if v[3] >= 0 else 0
+    # if v[3] < 0 or v[0] < 0:
+    #     oopalo_vce = 0
+    # assert v[3] > 0, \
+    #     'Отрицательное давление'
+    # assert v[0] > 0, \
+    #     'Отрицательная плотность'
+    v[0] = v[0] if v[0] >= 0 else 1e-9
+    v[3] = v[3] if v[3] >= 0 else 1e-9
     return v
 
 
@@ -63,10 +65,10 @@ def calc_flux_x(u):
 def calc_flux_y(u):
     f = np.zeros_like(u)
     v = convert_conserved_to_primitive(u)
-    f[0] = u[1]  # ρu
+    f[0] = u[2]  # ρu
     f[1] = u[1] * u[2] / u[0]
     f[2] = u[2] ** 2 / u[0] + v[3]  # ρ * u^2 + p
-    f[3] = (u[3] + v[3]) * v[1]  # (E + p) * u
+    f[3] = (u[3] + v[3]) * v[2]  # (E + p) * u
 
     return f
 

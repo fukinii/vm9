@@ -63,7 +63,7 @@ class Euler:
         # print(p, p_star)
         return np.sqrt(1 + (self.gamma + 1) * (p_star / p - 1) / 2 / self.gamma) if p_star <= p else 1
 
-    def estimate_pressure_based_speed_of_wave(self, ul, ur):
+    def estimate_pressure_based_speed_of_wave_x(self, ul, ur):
         al = calc_speed_of_sound(ul)
         ar = calc_speed_of_sound(ur)
         vl = convert_conserved_to_primitive(ul)
@@ -76,12 +76,12 @@ class Euler:
         qr = self.calc_qk(vr[3], p_star)
         return vl[1] - al * ql, vr[1] + ar * qr
 
-    def estimate_speed_of_wave_by_einfeldt(self, ul, ur):
+    def estimate_speed_of_wave_by_einfeldt_x(self, ul, ur):
         vl = convert_conserved_to_primitive(ul)  # V = [rho, u, p]
         vr = convert_conserved_to_primitive(ur)  # U = [rho, rho*u, E]
 
-        hl = (ul[2] + vl[2]) / vl[0]
-        hr = (ur[2] + vr[2]) / vr[0]
+        hl = (ul[3] + vl[3]) / vl[0]
+        hr = (ur[3] + vr[3]) / vr[0]
 
         u = (np.sqrt(vl[0]) * vl[1] + np.sqrt(vr[0]) * vr[1]) / (np.sqrt(vl[0]) + np.sqrt(vr[0]))
         h = (np.sqrt(vl[0]) * hl + np.sqrt(vr[0]) * hr) / (np.sqrt(vl[0]) + np.sqrt(vr[0]))
@@ -93,8 +93,25 @@ class Euler:
 
         return sl, sr
 
+    def estimate_speed_of_wave_by_einfeldt_y(self, ul, ur):
+        vl = convert_conserved_to_primitive(ul)  # V = [rho, u, p]
+        vr = convert_conserved_to_primitive(ur)  # U = [rho, rho*u, E]
+
+        hl = (ul[3] + vl[3]) / vl[0]
+        hr = (ur[3] + vr[3]) / vr[0]
+
+        u = (np.sqrt(vl[0]) * vl[2] + np.sqrt(vr[0]) * vr[2]) / (np.sqrt(vl[0]) + np.sqrt(vr[0]))
+        h = (np.sqrt(vl[0]) * hl + np.sqrt(vr[0]) * hr) / (np.sqrt(vl[0]) + np.sqrt(vr[0]))
+        a = np.sqrt((self.gamma - 1) * (h - 0.5 * u ** 2))
+        # a = np.sqrt(np.abs((self.gamma - 1) * (h - 0.5 * u ** 2)))
+
+        sl = u - a
+        sr = u + a
+
+        return sl, sr
+
     @staticmethod
-    def estimate_speed_of_wave_by_davis(ul, ur):
+    def estimate_speed_of_wave_by_davis_x(ul, ur):
         vl = convert_conserved_to_primitive(ul)  # V = [rho, u, p]
         vr = convert_conserved_to_primitive(ur)
 
@@ -105,16 +122,37 @@ class Euler:
         sr = max(vl[1] + al, vr[1] + ar)
         return sl, sr
 
-    def estimate_speed_of_wave(self, ul, ur):
+    def estimate_speed_of_wave_x(self, ul, ur):
         if self.wave_speed_estimator == 'pressure_based':
-            return self.estimate_pressure_based_speed_of_wave(ul, ur)
+            return self.estimate_pressure_based_speed_of_wave_x(ul, ur)
         if self.wave_speed_estimator == 'Einfeldt':
-            return self.estimate_speed_of_wave_by_einfeldt(ul, ur)
+            return self.estimate_speed_of_wave_by_einfeldt_x(ul, ur)
         if self.wave_speed_estimator == 'Davis':
-            return self.estimate_speed_of_wave_by_davis(ul, ur)
+            return self.estimate_speed_of_wave_by_davis_x(ul, ur)
 
     @staticmethod
-    def calc_s_star(vl, vr, sr, sl):
+    def estimate_speed_of_wave_by_davis_y(ul, ur):
+        vl = convert_conserved_to_primitive(ul)  # V = [rho, u, p]
+        vr = convert_conserved_to_primitive(ur)
+
+        al = calc_speed_of_sound(ul)
+        ar = calc_speed_of_sound(ur)
+
+        sl = min(vl[2] - al, vr[2] - ar)
+        sr = max(vl[2] + al, vr[2] + ar)
+        return sl, sr
+
+    def estimate_speed_of_wave_y(self, ul, ur):
+        if self.wave_speed_estimator == 'pressure_based':
+            pass
+            # return self.estimate_pressure_based_speed_of_wave_y(ul, ur)
+        if self.wave_speed_estimator == 'Einfeldt':
+            return self.estimate_speed_of_wave_by_einfeldt_y(ul, ur)
+        if self.wave_speed_estimator == 'Davis':
+            return self.estimate_speed_of_wave_by_davis_y(ul, ur)
+
+    @staticmethod
+    def calc_s_star_x(vl, vr, sr, sl):
 
         s_star = (vr[3] - vl[3] + vl[0] * vl[1] * (sl - vl[1]) - vr[0] * vr[1] * (sr - vr[1])) / (
                 vl[0] * (sl - vl[1]) - vr[0] * (sr - vr[1]))
@@ -122,7 +160,15 @@ class Euler:
         return s_star
 
     @staticmethod
-    def calc_uk_star(uk, vk, s_star, sk):
+    def calc_s_star_y(vl, vr, sr, sl):
+
+        s_star = (vr[3] - vl[3] + vl[0] * vl[2] * (sl - vl[2]) - vr[0] * vr[2] * (sr - vr[2])) / (
+                vl[0] * (sl - vl[2]) - vr[0] * (sr - vr[2]))
+
+        return s_star
+
+    @staticmethod
+    def calc_uk_star_x(uk, vk, s_star, sk):
 
         uk_star = np.zeros_like(vk)
 
@@ -135,17 +181,31 @@ class Euler:
 
         return uk_star
 
+    @staticmethod
+    def calc_uk_star_y(uk, vk, s_star, sk):
+
+        uk_star = np.zeros_like(vk)
+
+        coefficient = vk[0] * (sk - vk[2]) / (sk - s_star)
+        uk_star[0] = 1
+        uk_star[1] = s_star
+        uk_star[2] = vk[1]
+        uk_star[3] = (uk[3] / vk[0] + (s_star - vk[2]) * (s_star + vk[3] / vk[0] / (sk - vk[2])))
+        uk_star = coefficient * uk_star
+
+        return uk_star
+
     def calc_flux_hllc_x(self, ul, ur):  # TODO: Переписать под двумерный случай
         vl = convert_conserved_to_primitive(ul)
         vr = convert_conserved_to_primitive(ur)
-        sl, sr = self.estimate_speed_of_wave(ul, ur)
+        sl, sr = self.estimate_speed_of_wave_x(ul, ur)
         fl = calc_flux_x(ul)
         fr = calc_flux_x(ur)
 
-        s_star = self.calc_s_star(vl, vr, sr, sl)
+        s_star = self.calc_s_star_x(vl, vr, sr, sl)
 
-        ur_star = self.calc_uk_star(ur, vr, s_star, sr)
-        ul_star = self.calc_uk_star(ul, vl, s_star, sl)
+        ur_star = self.calc_uk_star_x(ur, vr, s_star, sr)
+        ul_star = self.calc_uk_star_x(ul, vl, s_star, sl)
 
         if sl > 0:
             f = fl
@@ -165,14 +225,14 @@ class Euler:
     def calc_flux_hllc_y(self, ul, ur):
         vl = convert_conserved_to_primitive(ul)
         vr = convert_conserved_to_primitive(ur)
-        sl, sr = self.estimate_speed_of_wave(ul, ur)
+        sl, sr = self.estimate_speed_of_wave_y(ul, ur)
         fl = calc_flux_y(ul)
         fr = calc_flux_y(ur)
 
-        s_star = self.calc_s_star(vl, vr, sr, sl)
+        s_star = self.calc_s_star_y(vl, vr, sr, sl)
 
-        ur_star = self.calc_uk_star(ur, vr, s_star, sr)
-        ul_star = self.calc_uk_star(ul, vl, s_star, sl)
+        ur_star = self.calc_uk_star_y(ur, vr, s_star, sr)
+        ul_star = self.calc_uk_star_y(ul, vl, s_star, sl)
 
         if sl > 0:
             f = fl

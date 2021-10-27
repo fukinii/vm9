@@ -43,8 +43,9 @@ class Solver:
         return -(flux_right - flux_left) / h
 
     @staticmethod
-    def calc_fhs_2d(flux_up, flux_down, flux_left, flux_right, h):
-        return -(flux_up + flux_right + flux_down + flux_left) / h
+    def calc_fhs_2d(flux_up, flux_right, flux_down, flux_left, h):
+        return -(-flux_up + flux_right + flux_down - flux_left) / h
+        # return -(flux_up + flux_right - flux_down - flux_left) / h
 
     def calc_delta_time(self, u, h):
         min_value = 1e9
@@ -83,12 +84,11 @@ class Solver:
                 for cell_index_x in range(indent - 1, np.shape(position_x)[0]):
                     ulr_cell_index_x = cell_index_x + 1
                     ulr_cell_index_y = cell_index_y + 1
-                    ulr[ulr_cell_index_y][ulr_cell_index_x] = self.reconstruct(
-                        u[t][cell_index_y][cell_index_x])
+                    ulr[ulr_cell_index_y][ulr_cell_index_x] = self.reconstruct(u[t][cell_index_y][cell_index_x])
 
             for cell_index_y in range(indent - 1, np.shape(position_y)[0]):
                 for cell_index_x in range(indent - 1, np.shape(position_x)[0]):
-                    print(cell_index_y, cell_index_x)
+                    # print(cell_index_y, cell_index_x)
                     # if cell_index_y == 0:
                     #     flux[cell_index_y, cell_index_y, :, :] = 0
                     # if cell_index_x != 0 and cell_index_y != 0 and cell_index_x != np.shape(position_y)[0] - 1 \
@@ -97,24 +97,29 @@ class Solver:
                     ulr_cell_index_x = cell_index_x + 1
                     ulr_cell_index_y = cell_index_y + 1
 
-                    if cell_index_x == 1 and cell_index_y == 1:
+                    if cell_index_x == 5 and cell_index_y == 48:
                         debug = 1
 
                     flux[cell_index_y, cell_index_x, :, 2] = self.model.flux_riemann_solver_y(
-                        ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
+                        ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
                     )
                     assert not np.isnan(flux).any()
 
                     flux[cell_index_y, cell_index_x, :, 1] = self.model.flux_riemann_solver_x(
-                        ulr[ulr_cell_index_y, ulr_cell_index_x + 1, :, 3],
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 1],
+                        ulr[ulr_cell_index_y, ulr_cell_index_x + 1, :, 3],
                     )
                     assert not np.isnan(flux).any()
 
                     flux[cell_index_y, cell_index_x, :, 0] = self.model.flux_riemann_solver_y(
                         ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
+
                     )
                     assert not np.isnan(flux).any()
 
@@ -123,8 +128,8 @@ class Solver:
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 3],
                     )
                     assert not np.isnan(flux).any()
-                # else:
-                #     flux[cell_index_y, cell_index_x, :, :] = 0
+                    # else:
+                    #     flux[cell_index_y, cell_index_x, :, :] = 0
 
                     rhs[cell_index_y, cell_index_x] = self.calc_fhs_2d(
                         flux[cell_index_y, cell_index_x, :, 0],
@@ -134,10 +139,10 @@ class Solver:
                         h_x)
                 a = 1
             u_next = u[t] + delta_time * rhs
-            print(u_next.shape)
+            # print(u_next.shape)
             u_next = np.reshape(u_next, (1, len(u_next), len(u_next[0]), self.model.dim_sol))
-            print(u_next.shape)
-            print(u.shape)
+            # print(u_next.shape)
+            # print(u.shape)
             u = np.concatenate((u, u_next), axis=0)
             t += 1
             time += delta_time
