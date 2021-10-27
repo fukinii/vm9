@@ -46,8 +46,8 @@ def convert_conserved_to_primitive(u, gamma=1.4):
     #     'Отрицательное давление'
     # assert v[0] > 0, \
     #     'Отрицательная плотность'
-    v[0] = v[0] if v[0] >= 0 else 1e-9
-    v[3] = v[3] if v[3] >= 0 else 1e-9
+    v[0] = v[0] if v[0] >= 0 else 1e-3
+    v[3] = v[3] if v[3] >= 0 else 1e-3
     return v
 
 
