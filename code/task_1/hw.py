@@ -20,7 +20,7 @@ w_4 = np.array([0.5313, 0.1, 0.7276, 0.4])
 # w_1 = np.array([0.8, 0.1, 0, 0.4])
 # w_2 = np.array([0.5313, 0.1, 0.7276, 0.4])
 
-position_nodes_number = 150
+position_nodes_number = 100
 
 x0 = 0.5
 y0 = 0.5
@@ -48,10 +48,10 @@ fig.suptitle('Тест, ' + str(t_final), fontsize=16)
 
 out = {'u': u, 'v': v, 'space_x': space_x, 'space_y': space_y, 't_final': t_final}
 
-with open('v_150_150_15_changed.pickle', 'wb') as f:
+with open('fix.pickle', 'wb') as f:
     pickle.dump(out, f)
 
-# with open('v_100_100_15_changed.pickle', 'rb') as f:
+# with open('v_100_100_15_1d_x_01cfl.pickle', 'rb') as f:
 #      out = pickle.load(f)
 
 u = out['u']
@@ -60,7 +60,7 @@ space_x = out['space_x']
 space_y = out['space_y']
 t_final = out['t_final']
 
-Z = v[-1][:, :, 3]
+Z = v[-1][:, :, 0]
 Z_1d = Z.ravel()
 space_x_1d = np.tile(space_x, len(space_x))
 space_y_1d = np.repeat(space_y, len(space_y))

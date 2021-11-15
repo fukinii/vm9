@@ -190,6 +190,8 @@ class Euler:
         uk_star[0] = 1
         uk_star[1] = s_star
         uk_star[2] = vk[1]
+        # uk_star[1] = vk[1]
+        # uk_star[2] = s_star
         uk_star[3] = (uk[3] / vk[0] + (s_star - vk[2]) * (s_star + vk[3] / vk[0] / (sk - vk[2])))
         uk_star = coefficient * uk_star
 
@@ -242,6 +244,16 @@ class Euler:
             f = fl + sl * (ul_star - ul)
         else:
             f = fr + sr * (ur_star - ur)
+
+        a = 1
+        # if sl < 0:
+        #     f = fl
+        # elif sr > 0:
+        #     f = fr
+        # elif s_star < 0:
+        #     f = fl + sl * (ul_star - ul)
+        # else:
+        #     f = fr + sr * (ur_star - ur)
 
         return f
 

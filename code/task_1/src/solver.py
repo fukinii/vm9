@@ -77,7 +77,7 @@ class Solver:
         t = 0
         while time < t_final:
             # delta_time = self.calc_delta_time(u[t][0], h_x)
-            delta_time = h_x * 0.3
+            delta_time = h_x * 0.1
             u[t], ulr, indent = self.build_boundary_conditions(u[t], ulr)
 
             for cell_index_y in range(indent - 1, np.shape(position_y)[0]):
@@ -105,29 +105,43 @@ class Solver:
                         # ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
                         ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
+                        # ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
+                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
+
+
                     )
-                    assert not np.isnan(flux).any()
+                    if np.isnan(flux).any():
+                        print(cell_index_x, ' ', cell_index_y)
+                        assert not np.isnan(flux).any()
 
                     flux[cell_index_y, cell_index_x, :, 1] = self.model.flux_riemann_solver_x(
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 1],
                         ulr[ulr_cell_index_y, ulr_cell_index_x + 1, :, 3],
                     )
-                    assert not np.isnan(flux).any()
+                    if np.isnan(flux).any():
+                        print(cell_index_x, ' ', cell_index_y)
+                        assert not np.isnan(flux).any()
 
                     flux[cell_index_y, cell_index_x, :, 2] = self.model.flux_riemann_solver_y(
                         # ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
                         # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
                         ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
+                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
+                        # ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
 
                     )
-                    assert not np.isnan(flux).any()
+                    if np.isnan(flux).any():
+                        print(cell_index_x, ' ', cell_index_y)
+                        assert not np.isnan(flux).any()
 
                     flux[cell_index_y, cell_index_x, :, 3] = self.model.flux_riemann_solver_x(
                         ulr[ulr_cell_index_y, ulr_cell_index_x - 1, :, 1],
                         ulr[ulr_cell_index_y, ulr_cell_index_x, :, 3],
                     )
-                    assert not np.isnan(flux).any()
+                    if np.isnan(flux).any():
+                        print(cell_index_x, ' ', cell_index_y)
+                        assert not np.isnan(flux).any()
                     # else:
                     #     flux[cell_index_y, cell_index_x, :, :] = 0
 
@@ -137,6 +151,13 @@ class Solver:
                         flux[cell_index_y, cell_index_x, :, 2],
                         flux[cell_index_y, cell_index_x, :, 3],
                         h_x)
+
+                    # rhs[cell_index_y, cell_index_x] = self.calc_rhs(flux[cell_index_y, cell_index_x, :, 3],
+                    #                                                 flux[cell_index_y, cell_index_x, :, 1], h_x)
+
+                    # rhs[cell_index_y, cell_index_x] = self.calc_rhs(flux[cell_index_y, cell_index_x, :, 0],
+                    #                                                 flux[cell_index_y, cell_index_x, :, 2], h_y)
+
                 a = 1
             u_next = u[t] + delta_time * rhs
             # print(u_next.shape)
