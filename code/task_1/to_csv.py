@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 
-with open('v_100_100_05_2d_01cfl.pickle', 'rb') as f:
+with open('2611_100_100_05_2d.pickle', 'rb') as f:
     out = pickle.load(f)
 
 u = out['u']
@@ -25,12 +25,12 @@ marker = True
 
 for i in range(len(out)):
     for j in range(len(out[0])):
-        out[i, j, 0] = space_x[j]
-        out[i, j, 1] = space_y[i]
-        out[i, j, 2] = rho[i, j]
-        out[i, j, 3] = vel_x[i, j]
-        out[i, j, 4] = vel_y[i, j]
-        out[i, j, 5] = p[i, j]
+        # out[i, j, 0] = space_x[j]
+        # out[i, j, 1] = space_y[i]
+        # out[i, j, 2] = rho[i, j]
+        # out[i, j, 3] = vel_x[i, j]
+        # out[i, j, 4] = vel_y[i, j]
+        # out[i, j, 5] = p[i, j]
 
         res = np.zeros((6, 1), dtype=np.double)
         res[0][0] = space_x[j]
@@ -43,14 +43,14 @@ for i in range(len(out)):
         res = res.transpose()
 
         if marker:
-            with open("v_100_100_05_2d_01cfl.csv", "w") as f:
+            with open("2611_100_100_05_2d.csv", "w") as f:
                 np.savetxt(f, res, delimiter=',', header="x,y,rho,vel_x,vel_y,p")
         else:
-            with open("v_100_100_05_2d_01cfl.csv", "a+") as f:
+            with open("2611_100_100_05_2d.csv", "a+") as f:
                 np.savetxt(f, res, delimiter=',')
 
         marker = False
-
+        # print(i, j)
 
 
 # print(space_x)

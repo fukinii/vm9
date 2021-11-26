@@ -188,10 +188,10 @@ class Euler:
 
         coefficient = vk[0] * (sk - vk[2]) / (sk - s_star)
         uk_star[0] = 1
-        uk_star[1] = s_star
-        uk_star[2] = vk[1]
-        # uk_star[1] = vk[1]
-        # uk_star[2] = s_star
+        # uk_star[1] = s_star
+        # uk_star[2] = vk[1]
+        uk_star[1] = vk[1]
+        uk_star[2] = s_star
         uk_star[3] = (uk[3] / vk[0] + (s_star - vk[2]) * (s_star + vk[3] / vk[0] / (sk - vk[2])))
         uk_star = coefficient * uk_star
 

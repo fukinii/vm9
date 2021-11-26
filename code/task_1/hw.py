@@ -10,10 +10,18 @@ import matplotlib.pyplot as plt
 
 ''' Configuration 11 '''
 # w = [rho, u, v, p]
-w_2 = np.array([0.5313, 0.8276, 0, 0.4])
+# # Начальная версия
+# w_2 = np.array([0.5313, 0.8276, 0, 0.4])
+# w_1 = np.array([1, 0.1, 0, 1])
+# w_3 = np.array([0.8, 0.1, 0, 0.4])
+# w_4 = np.array([0.5313, 0.1, 0.7276, 0.4])
+
+# TODO: поиграться с данными
+# Начальная версия
+w_4 = np.array([0.5313, 0.8276, 0, 0.4])
 w_1 = np.array([1, 0.1, 0, 1])
 w_3 = np.array([0.8, 0.1, 0, 0.4])
-w_4 = np.array([0.5313, 0.1, 0.7276, 0.4])
+w_2 = np.array([0.5313, 0.1, 0.7276, 0.4])
 
 # w_4 = np.array([0.5313, 0.8276, 0, 0.4])
 # w_3 = np.array([1, 0.1, 0, 1])
@@ -24,7 +32,7 @@ position_nodes_number = 100
 
 x0 = 0.5
 y0 = 0.5
-t_final = 0.15
+t_final = 0.1
 
 euler_model = Euler(initial_conditions_=[w_1, w_2, w_3, w_4, x0, y0], wave_speed_estimator_='Einfeldt', dim=2)
 
@@ -48,7 +56,7 @@ fig.suptitle('Тест, ' + str(t_final), fontsize=16)
 
 out = {'u': u, 'v': v, 'space_x': space_x, 'space_y': space_y, 't_final': t_final}
 
-with open('fix.pickle', 'wb') as f:
+with open('2611_100_100_05_2d.pickle', 'wb') as f:
     pickle.dump(out, f)
 
 # with open('v_100_100_15_1d_x_01cfl.pickle', 'rb') as f:

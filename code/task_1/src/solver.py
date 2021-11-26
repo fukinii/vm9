@@ -77,7 +77,7 @@ class Solver:
         t = 0
         while time < t_final:
             # delta_time = self.calc_delta_time(u[t][0], h_x)
-            delta_time = h_x * 0.1
+            delta_time = h_x * 0.3
             u[t], ulr, indent = self.build_boundary_conditions(u[t], ulr)
 
             for cell_index_y in range(indent - 1, np.shape(position_y)[0]):
@@ -97,18 +97,16 @@ class Solver:
                     ulr_cell_index_x = cell_index_x + 1
                     ulr_cell_index_y = cell_index_y + 1
 
-                    if cell_index_x == 0 and cell_index_y == 48:
+                    if cell_index_x == 10 and cell_index_y == 30:
                         debug = 1
 
                     flux[cell_index_y, cell_index_x, :, 0] = self.model.flux_riemann_solver_y(
                         # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
                         # ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
-                        ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
-                        ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
-                        # ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
-                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
-
-
+                        # ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
+                        ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
+                        ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
                     )
                     if np.isnan(flux).any():
                         print(cell_index_x, ' ', cell_index_y)
@@ -125,10 +123,10 @@ class Solver:
                     flux[cell_index_y, cell_index_x, :, 2] = self.model.flux_riemann_solver_y(
                         # ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
                         # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
-                        ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
-                        ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
-                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
-                        # ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y, ulr_cell_index_x, :, 0],
+                        # ulr[ulr_cell_index_y - 1, ulr_cell_index_x, :, 2],
+                        ulr[ulr_cell_index_y, ulr_cell_index_x, :, 2],
+                        ulr[ulr_cell_index_y + 1, ulr_cell_index_x, :, 0],
 
                     )
                     if np.isnan(flux).any():
